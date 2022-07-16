@@ -162,7 +162,7 @@ packer.use_rocks = function(rock)
     rock = { rock }
   end
   if not vim.tbl_islist(rock) and type(rock[1]) == 'string' then
-    rocks[rock[1]] = rock
+    rocks[ rock[1] ] = rock
   else
     for _, r in ipairs(rock) do
       local rock_name = (type(r) == 'table') and r[1] or r
@@ -211,12 +211,12 @@ manage = function(plugin_data)
   if plugin_spec.as and plugins[plugin_spec.as] then
     log.error(
       'The alias '
-        .. plugin_spec.as
-        .. ', specified for '
-        .. path
-        .. ' at '
-        .. spec_line
-        .. ' is already used as another plugin name!'
+      .. plugin_spec.as
+      .. ', specified for '
+      .. path
+      .. ' at '
+      .. spec_line
+      .. ' is already used as another plugin name!'
     )
     return
   end
@@ -493,7 +493,7 @@ packer.update = function(...)
       return not display.status.running
     end)
     table.insert(tasks, 1, config.max_jobs and config.max_jobs or (#tasks - 1))
-    display_win:update_headline_message('updating ' .. #tasks - 2 .. ' / ' .. #tasks - 2 .. ' plugins')
+    display_win:update_headline_message('updating ' .. #tasks - 4 .. ' / ' .. #tasks - 4 .. ' plugins')
     log.debug 'Running tasks'
     a.interruptible_wait_pool(unpack(tasks))
     local install_paths = {}
@@ -780,7 +780,7 @@ packer.loader = function(...)
     )
   end
 
-  require 'packer.load'(plugin_list, {}, _G.packer_plugins, force)
+  require 'packer.load' (plugin_list, {}, _G.packer_plugins, force)
 end
 
 -- Completion for not yet loaded plugins
@@ -832,7 +832,7 @@ packer.snapshot = function(snapshot_name, ...)
 
   local target_plugins = plugins
   if next(args) ~= nil then -- provided extra args
-    target_plugins = vim.tbl_filter( -- filter plugins
+    target_plugins = vim.tbl_filter(-- filter plugins
       function(plugin)
         for k, plugin_shortname in pairs(args) do
           if plugin_shortname == plugin.short_name then
@@ -861,16 +861,16 @@ packer.snapshot = function(snapshot_name, ...)
   async(function()
     if write_snapshot then
       await(snapshot.create(snapshot_path, target_plugins))
-        :map_ok(function(ok)
-          vim.notify(ok.message, vim.log.levels.INFO, { title = 'packer.nvim' })
+          :map_ok(function(ok)
+            vim.notify(ok.message, vim.log.levels.INFO, { title = 'packer.nvim' })
 
-          if next(ok.failed) then
-            vim.notify("Couldn't snapshot " .. vim.inspect(ok.failed), vim.log.levels.WARN, { title = 'packer.nvim' })
-          end
-        end)
-        :map_err(function(err)
-          vim.notify(err.message, vim.log.levels.WARN, { title = 'packer.nvim' })
-        end)
+            if next(ok.failed) then
+              vim.notify("Couldn't snapshot " .. vim.inspect(ok.failed), vim.log.levels.WARN, { title = 'packer.nvim' })
+            end
+          end)
+          :map_err(function(err)
+            vim.notify(err.message, vim.log.levels.WARN, { title = 'packer.nvim' })
+          end)
     end
   end)()
 end
@@ -894,7 +894,7 @@ packer.rollback = function(snapshot_name, ...)
     manage_all_plugins()
 
     local snapshot_path = vim.loop.fs_realpath(util.join_paths(config.snapshot_path, snapshot_name))
-      or vim.loop.fs_realpath(snapshot_name)
+        or vim.loop.fs_realpath(snapshot_name)
 
     if snapshot_path == nil then
       local warn = fmt("Snapshot '%s' is wrong or doesn't exist", snapshot_name)
@@ -917,17 +917,17 @@ packer.rollback = function(snapshot_name, ...)
     end
 
     await(snapshot.rollback(snapshot_path, target_plugins))
-      :map_ok(function(ok)
-        await(a.main)
-        vim.notify('Rollback to "' .. snapshot_path .. '" completed', vim.log.levels.INFO, { title = 'packer.nvim' })
-        if next(ok.failed) then
-          vim.notify("Couldn't rollback " .. vim.inspect(ok.failed), vim.log.levels.INFO, { title = 'packer.nvim' })
-        end
-      end)
-      :map_err(function(err)
-        await(a.main)
-        vim.notify(err, vim.log.levels.ERROR, { title = 'packer.nvim' })
-      end)
+        :map_ok(function(ok)
+          await(a.main)
+          vim.notify('Rollback to "' .. snapshot_path .. '" completed', vim.log.levels.INFO, { title = 'packer.nvim' })
+          if next(ok.failed) then
+            vim.notify("Couldn't rollback " .. vim.inspect(ok.failed), vim.log.levels.INFO, { title = 'packer.nvim' })
+          end
+        end)
+        :map_err(function(err)
+          await(a.main)
+          vim.notify(err, vim.log.levels.ERROR, { title = 'packer.nvim' })
+        end)
 
     packer.on_complete()
   end)()
